@@ -1,0 +1,16 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+  <f:entry title="Hostname" field="hostname">
+    <f:textbox/>
+  </f:entry>
+  <f:entry title="Remoting Port" field="port">
+    <f:textbox/>
+  </f:entry>
+  <f:entry title="Anthill Pro Admin User Credentials" field="userCredentialId">
+    <c:select xmlns:c="/lib/credentials" field="userCredentialId" />
+  </f:entry>
+  <f:entry title="Agent Keystore (If required by AHP Configuration)" field="keystoreCredentialId">
+    <c:select xmlns:c="/lib/credentials" field="keystoreCredentialId" />
+  </f:entry>
+</j:jelly>
+

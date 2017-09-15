@@ -1,0 +1,156 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
+         xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+  <!-- Require create permission -->
+  <j:getStatic var="permission" className="hudson.model.Item" field="CREATE" />
+  <l:layout permission="${permission}" title="Anthill Pro to Jenkins Migrate">
+    <l:main-panel>
+      <!-- Grab jQuery since that's what I know and love -->
+      <script src="${rootURL}/plugin/ahp2jenkins/js/jquery-3.2.1.min.js"></script>
+      <script>
+        // Turn off jQuery's use of $ because something else
+        // Jenkins-y owns it
+        jQuery.noConflict();
+
+        // Get our RPC
+        var rpc = <st:bind value="${it}" />;
+      </script>
+      <script src="${rootURL}/plugin/ahp2jenkins/js/ahp2jenkins.js"></script>
+      <!-- I would love to see a truly comprehensive guide on Jenkins Jelly
+           templates.  Maybe I should make one :P  Anyway, this is kind
+           of crunchy hacky HTML here but I'm not sure how to do it better.
+           Link in our stylesheet -->
+      <link rel="stylesheet"
+            type="text/css"
+            href="${rootURL}/plugin/ahp2jenkins/css/ahp-style.css" />
+      <!-- Some informational header -->
+      <h1>Anthill Pro to Jenkins Migration Tool</h1>
+      <h3>Use this tool to migrate Anthill Pro workflows into Jenkins.
+          Please go to
+          <a href="${rootURL}/configure" target="_blank">
+            the Jenkins configuration page
+          </a>
+          to set up connections to Anthill Pro.
+          <strong>AM-35: Add Jenkins folder support for new jobs</strong>
+      </h3>
+      <!-- A table to keep track of migration progress -->
+      <h2 class="section-header" style="margin-top: 30px;">Migration Progress</h2>
+      <table id="ahpJobs">
+        <thead>
+          <tr>
+            <th>Workflow (ID)</th>
+            <th>Jenkins Job</th>
+            <th>Results</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="3">Loading...</td>
+          </tr>
+        </tbody>
+      </table>
+      <h2 class="section-header" style="margin-top: 30px;">Queue Migration Job</h2>
+      <!-- Form to submit more migrations -->
+      <f:form name="migrate">
+        <!-- List AHP instances configured or inform the user that they
+             must configure some -->
+        <f:section title="Select an Anthill Pro Instance">
+          <j:choose>
+            <j:when test="${it.instancesConfigured}">
+              <f:entry title="Select Instance to Migrate From" field="ahp">
+                <select name="ahp" id="ahpInstance">
+                  <option value=""></option>
+                  <j:forEach var="ahpInstance" items="${it.ahpInstances}">
+                    <option value="${ahpInstance.toString()}">
+                        ${ahpInstance.getHostname()}:${ahpInstance.getPort()}
+                        (${ahpInstance.getUserCredentialId()})
+                        <j:if test="${ahpInstance.getKeystoreCredentialId()} != null">
+                          - ${ahpInstance.getKeystoreCredentialId()}
+                        </j:if>
+                    </option>
+                  </j:forEach>
+                </select>
+              </f:entry>
+            </j:when>
+            <j:otherwise>
+              <p>You do not have any Anthill Pro instances configured yet.
+                 Please go to
+                 <a href="${rootURL}/configure" target="_blank">
+                   the Jenkins configuration page
+                 </a>
+                 to set up connections to Anthill Pro.
+              </p>
+            </j:otherwise>
+          </j:choose>
+        </f:section>
+      </f:form>
+      <div id="workflowPicker" style="display: none;">
+        <!-- There is probably a better way to do this, but I don't know Jelly
+             that well. It doesn't look like you can use the <f: tags and start
+             them out style="hidden", so I copy/pasted the rendered HTML and
+             tweaked it instead.
+
+             This is almost definitely the "bad way" to do it, but its the
+             only way I know at the moment.
+          -->
+        <form>
+          <table width="100%">
+            <tbody>
+              <tr>
+                <td colspan="4">
+                  <div class="section-header">Choose What to Migrate</div>
+                </td>
+              </tr>
+              <tr>
+                <td class="setting-leftspace"></td>
+                <td class="setting-name">Search Projects for Workflows:</td>
+                <td class="setting-main">
+                    <input id="searchText" type="text" />
+                    <input id="projectSearch" type="button" value="Search" />
+                    <img style="display: none;" id="loadingSpinner"
+                         src="${rootURL}/images/spinner.gif" height="16" width="16" />
+                </td>
+                <td class="setting-no-help"></td>
+              </tr>
+              <tr class="validation-error-area">
+                <td colspan="2"></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr style="display: none;" class="displayOnSearch">
+                <td colspan="4">
+                  <div class="section-header">Select Workflows</div>
+                </td>
+              </tr>
+              <tr style="display: none;" class="displayOnSearch">
+                <td class="setting-leftspace"></td>
+                <td class="setting-name">Select Workflows:</td>
+                <td class="setting-main" id="selectWorkflowsList"></td>
+                <td class="setting-no-help"></td>
+              </tr>
+              <tr style="display: none;" class="displayOnSearch">
+                <td colspan="4">
+                  <div class="section-header">Selected Workflows</div>
+                </td>
+              </tr>
+              <tr style="display: none;" class="displayOnSearch">
+                <td class="setting-leftspace"></td>
+                <td class="setting-name">Selected Workflows (click to remove):</td>
+                <td class="setting-main" id="selectedWorkflowsList"></td>
+                <td class="setting-no-help"></td>
+              </tr>
+              <tr style="display: none;" class="displayOnSearch">
+                <td class="setting-leftspace"></td>
+                <td class="setting-name"></td>
+                <td class="setting-main">
+                    <input id="migrate" type="button" value="Start Migration" />
+                </td>
+                <td class="setting-no-help"></td>
+              </tr>
+            </tbody>
+          </table>
+        </form>
+      </div>
+    </l:main-panel>
+  </l:layout>
+</j:jelly>
