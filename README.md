@@ -21,6 +21,15 @@ Key planned features of the migration plugin include:
 * The ability to just export properties without creating Jenkins jobs in case you would rather use your own Pipeline template.  Use our generated Pipeline scripts as a base to make your own template and we'll make sure you didn't miss anything.
 
 
+STATUS OF PROJECT
+=================
+Epic Force started this project with the thought there might be a demand for migration from Anthill Pro to Jenkins.  So far, we haven't gotten much demand for this, so the project is a bit stalled.  As such, this doesn't migrate a whole lot of stuff other than basic Maven jobs.
+
+If you are interested in this project, we're interested in partners willing to help us finish this, either by sponsoring further work or by providing aide.  We'd be happy to finish the work, but with no clear users yet, we're back-burnering this and have chosen to open source it to see if there's any interest.
+
+Feel free to reach out to : engineering@epicforce.net if you have any questions or interest in this project.
+
+
 BUILDING
 ========
 In order to build this project, you must first have a net.epicforce.migrate.ahp in your packages.  This can be done (at the moment) by doing a 'mvn clean install' to make a local cache of the AHP library.  It will automatically bake in all the IBM UrbanCode stuff needed to run the migration.
